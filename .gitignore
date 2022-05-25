@@ -58,3 +58,5 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+^*RockPaperScissors_clone_[0-9999]+$
+
