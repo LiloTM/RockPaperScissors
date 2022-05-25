@@ -1,20 +1,42 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
+using UnityEngine.UI;
 
-public class UIManager : NetworkBehaviour
+public enum Hand
 {
-    public void Rock()
+    Empty,
+    Rock,
+    Paper,
+    Scissors
+}
+
+public class UIManager : MonoBehaviour
+{
+    [SerializeField]
+    private Button RockButton;
+    [SerializeField]
+    private Button PaperButton;
+    [SerializeField]
+    private Button ScissorsButton;
+    [SerializeField]
+    private Button Play;
+
+    private Hand playHand = Hand.Empty;
+
+    private void Start()
     {
-        Debug.Log(OwnerClientId + " Rock");
-    }
-    public void Paper()
-    {
-        Debug.Log(OwnerClientId + " Paper");
-    }
-    public void Scissors()
-    {
-        Debug.Log(OwnerClientId + " Scissors");
+        RockButton.onClick.AddListener(() => playHand = Hand.Rock);
+        PaperButton.onClick.AddListener(() => playHand = Hand.Paper);
+        ScissorsButton.onClick.AddListener(() => playHand = Hand.Scissors);
+        
+        Play.onClick.AddListener(() => {
+            if (playHand != Hand.Empty) 
+            { 
+                // TODO: here the hand needs to be given to the Server-Solver. RESEARCH!
+                Debug.Log(playHand);
+                playHand = Hand.Empty;
+            }
+        });
     }
 }
