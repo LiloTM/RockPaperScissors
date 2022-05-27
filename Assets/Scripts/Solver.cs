@@ -6,10 +6,12 @@ using Unity.Netcode;
 public class Solver : NetworkBehaviour
 {
     [SerializeField]
-    private NetworkVariable<Hand> FirstPlayer = new NetworkVariable<Hand>();
+    private NetworkVariable<Hand> HostPlayer = new NetworkVariable<Hand>();
     [SerializeField]
-    private NetworkVariable<Hand> SecondPlayer = new NetworkVariable<Hand>();
+    private NetworkVariable<Hand> ClientPlayer = new NetworkVariable<Hand>();
 
+    private ulong HostID;
+    private ulong ClientID;
     #region Singleton
     private static Solver _instance;
     public static Solver Instance
@@ -37,59 +39,74 @@ public class Solver : NetworkBehaviour
     }
     #endregion 
 
-    private void Update()
+    private void isPlayed()
     {
-        if (FirstPlayer.Value != Hand.Empty && SecondPlayer.Value != Hand.Empty)
+        if (HostPlayer.Value != Hand.Empty && ClientPlayer.Value != Hand.Empty)
         {
-            Debug.Log("Test");
-            ExecuteSolver();
-            FirstPlayer.Value = Hand.Empty;
-            SecondPlayer.Value = Hand.Empty;
-        }
-    }
-
-    public void ExecuteSolver()
-    {
-        if (IsServer)
-        {
-            CompareHands();
-
+            if (IsServer) CompareHands();
+            HostPlayer.Value = Hand.Empty;
+            ClientPlayer.Value = Hand.Empty;
         }
     }
 
     private void CompareHands()
     {
-        if (FirstPlayer.Value == SecondPlayer.Value) Debug.Log("Gleichstand");
-        else if(FirstPlayer.Value == Hand.Rock)
+        if (HostPlayer.Value == ClientPlayer.Value) Debug.Log("Gleichstand");
+        else if(HostPlayer.Value == Hand.Rock)
         {
-            if (SecondPlayer.Value == Hand.Paper) 
-                Debug.Log("SecondPlayer " + SecondPlayer.Value + " wins against " + FirstPlayer.Value);
-            else Debug.Log("FirstPlayer " + FirstPlayer.Value + " wins against " + SecondPlayer.Value);
+            if (ClientPlayer.Value == Hand.Paper)
+            {
+                NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(ClientID).GetComponent<GameManager>().increaseWinCountClientRpc();
+                Debug.Log("Client " + ClientPlayer.Value + " wins against " + HostPlayer.Value);
+            }
+            else
+            {
+                NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(HostID).GetComponent<GameManager>().increaseWinCountClientRpc();
+                Debug.Log("Host " + HostPlayer.Value + " wins against " + ClientPlayer.Value);
+            }
         }
-        else if (FirstPlayer.Value == Hand.Paper)
+        else if (HostPlayer.Value == Hand.Paper)
         {
-            if (SecondPlayer.Value == Hand.Scissors) 
-                Debug.Log("SecondPlayer " + SecondPlayer.Value + " wins against " + FirstPlayer.Value);
-            else Debug.Log("FirstPlayer " + FirstPlayer.Value + " wins against " + SecondPlayer.Value);
+            if (ClientPlayer.Value == Hand.Scissors)
+            {
+                NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(ClientID).GetComponent<GameManager>().increaseWinCountClientRpc();
+                Debug.Log("Client " + ClientPlayer.Value + " wins against " + HostPlayer.Value);
+            }
+            else
+            {
+                NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(HostID).GetComponent<GameManager>().increaseWinCountClientRpc();
+                Debug.Log("Host " + HostPlayer.Value + " wins against " + ClientPlayer.Value);
+            }
         }
-        else if (FirstPlayer.Value == Hand.Scissors)
+        else if (HostPlayer.Value == Hand.Scissors)
         {
-            if (SecondPlayer.Value == Hand.Rock)
-                Debug.Log("SecondPlayer " + SecondPlayer.Value + " wins against " + FirstPlayer.Value);
-            else Debug.Log("FirstPlayer " + FirstPlayer.Value + " wins against " + SecondPlayer.Value);
+            if (ClientPlayer.Value == Hand.Rock)
+            {
+                NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(ClientID).GetComponent<GameManager>().increaseWinCountClientRpc();
+                Debug.Log("Client " + ClientPlayer.Value + " wins against " + HostPlayer.Value);
+            }
+            else 
+            {
+                NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(HostID).GetComponent<GameManager>().increaseWinCountClientRpc();
+                Debug.Log("Host " + HostPlayer.Value + " wins against " + ClientPlayer.Value); 
+            }
         }
     }
 
-    public void getHand(Hand hand)
+    public void getHand(Hand hand, ulong ID)
     {
-        FirstPlayer = new NetworkVariable<Hand>(hand);
-        Debug.Log("FirstPlayer has been sent to the Solver.");
+        HostPlayer = new NetworkVariable<Hand>(hand); 
+        HostID = ID;
+        isPlayed();
+        Debug.Log("Host " + HostID + "has been sent to the Solver. " + HostPlayer);
     }
     
     [ServerRpc(RequireOwnership = false)]
-    public void getHandServerRpc(Hand hand)
+    public void getHandServerRpc(Hand hand, ulong ID)
     {
-        SecondPlayer = new NetworkVariable<Hand>(hand);
-        Debug.Log("SecondPlayer has been sent to the Solver.");
+        ClientPlayer = new NetworkVariable<Hand>(hand);
+        ClientID = ID;
+        isPlayed();
+        Debug.Log("Client " + ClientID + "has been sent to the Solver. " + ClientPlayer);
     }
 }

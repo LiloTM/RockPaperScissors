@@ -34,11 +34,10 @@ public class UIManager : MonoBehaviour
         Play.onClick.AddListener(() => {
             if (playHand != Hand.Empty) 
             {
+                //TODO: Maybe put this in an extra class
                 if (NetworkManager.Singleton.IsServer)
-                    Solver.Instance.getHand(playHand);
-                else Solver.Instance.getHandServerRpc(playHand);
-
-                Debug.Log(playHand );
+                    Solver.Instance.getHand(playHand, NetworkManager.Singleton.LocalClientId);
+                else Solver.Instance.getHandServerRpc(playHand, NetworkManager.Singleton.LocalClientId);
                 playHand = Hand.Empty;
             }
         });
