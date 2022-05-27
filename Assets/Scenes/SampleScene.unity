@@ -956,6 +956,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 562f8aa9453687549aacb34a2615a94f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FirstPlayer:
+    m_InternalValue: 0
+  SecondPlayer:
+    m_InternalValue: 0
 --- !u!4 &981530760
 Transform:
   m_ObjectHideFlags: 0
@@ -1400,7 +1404,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1675502624}
   - component: {fileID: 1675502626}
-  - component: {fileID: 1675502625}
+  - component: {fileID: 1675502627}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -1423,25 +1427,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1675502625
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1675502622}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b84c2d8dfe509a34fb59e2b81f8e1319, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MessageBufferSize: 5120
-  MaxConnections: 100
-  MaxSentMessageQueueSize: 128
-  ConnectAddress: 127.0.0.1
-  ConnectPort: 7777
-  ServerListenPort: 7777
-  MessageSendMode: 0
 --- !u!114 &1675502626
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1458,7 +1443,7 @@ MonoBehaviour:
   LogLevel: 1
   NetworkConfig:
     ProtocolVersion: 0
-    NetworkTransport: {fileID: 1675502625}
+    NetworkTransport: {fileID: 1675502627}
     PlayerPrefab: {fileID: 8278089856560804382, guid: da82daedf57f571428c95fee613a7de2, type: 3}
     NetworkPrefabs:
     - Override: 0
@@ -1466,7 +1451,7 @@ MonoBehaviour:
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}
-    TickRate: 30
+    TickRate: 60
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
     ConnectionData: 
@@ -1481,6 +1466,34 @@ MonoBehaviour:
     LoadSceneTimeOut: 120
     SpawnTimeout: 1
     EnableNetworkLogs: 1
+--- !u!114 &1675502627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1675502622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ProtocolType: 0
+  m_MaxPacketQueueSize: 128
+  m_MaxPayloadSize: 6144
+  m_MaxSendQueueSize: 98304
+  m_HeartbeatTimeoutMS: 500
+  m_ConnectTimeoutMS: 1000
+  m_MaxConnectAttempts: 60
+  m_DisconnectTimeoutMS: 30000
+  ConnectionData:
+    Address: 127.0.0.1
+    Port: 7777
+    ServerListenAddress: 
+  DebugSimulator:
+    PacketDelayMS: 0
+    PacketJitterMS: 0
+    PacketDropRate: 0
 --- !u!1 &1693586208
 GameObject:
   m_ObjectHideFlags: 0
@@ -1790,3 +1803,4 @@ MonoBehaviour:
   PaperButton: {fileID: 914220460}
   ScissorsButton: {fileID: 1804498791}
   Play: {fileID: 1440336677}
+  playHand: 0

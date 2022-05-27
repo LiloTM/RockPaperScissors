@@ -1,38 +1,95 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class Solver : MonoBehaviour
+public class Solver : NetworkBehaviour
 {
-    Hand FirstPlayer;
-    Hand SecondPlayer;
+    [SerializeField]
+    private NetworkVariable<Hand> FirstPlayer = new NetworkVariable<Hand>();
+    [SerializeField]
+    private NetworkVariable<Hand> SecondPlayer = new NetworkVariable<Hand>();
 
-    public void CompareHands()
+    #region Singleton
+    private static Solver _instance;
+    public static Solver Instance
     {
-        if (FirstPlayer == SecondPlayer) Debug.Log("Gleichstand");
-        else if(FirstPlayer == Hand.Rock)
+        get
         {
-            if (SecondPlayer == Hand.Paper) Debug.Log("SecondPlayer " + SecondPlayer + " wins against " + FirstPlayer);
-            else Debug.Log("FirstPlayer " + FirstPlayer + " wins against " + SecondPlayer);
+            if (_instance == null)
+            {
+                var objs = FindObjectsOfType(typeof(Solver)) as Solver[];
+                if (objs.Length > 0)
+                    _instance = objs[0];
+                if (objs.Length > 1)
+                {
+                    Debug.LogError("There is more than one " + typeof(Solver).Name + " in the scene.");
+                }
+                if (_instance == null)
+                {
+                    GameObject obj = new GameObject();
+                    obj.name = string.Format("_{0}", typeof(Solver).Name);
+                    _instance = obj.AddComponent<Solver>();
+                }
+            }
+            return _instance;
         }
-        else if (FirstPlayer == Hand.Paper)
+    }
+    #endregion 
+
+    private void Update()
+    {
+        if (FirstPlayer.Value != Hand.Empty && SecondPlayer.Value != Hand.Empty)
         {
-            if (SecondPlayer == Hand.Scissors) Debug.Log("SecondPlayer " + SecondPlayer + " wins against " + FirstPlayer);
-            else Debug.Log("FirstPlayer " + FirstPlayer + " wins against " + SecondPlayer);
-        }
-        else if (FirstPlayer == Hand.Scissors)
-        {
-            if (SecondPlayer == Hand.Rock) Debug.Log("SecondPlayer " + SecondPlayer + " wins against " + FirstPlayer);
-            else Debug.Log("FirstPlayer " + FirstPlayer + " wins against " + SecondPlayer);
+            Debug.Log("Test");
+            ExecuteSolver();
+            FirstPlayer.Value = Hand.Empty;
+            SecondPlayer.Value = Hand.Empty;
         }
     }
 
-    public void getHand1(Hand hand)
+    public void ExecuteSolver()
     {
-        FirstPlayer = hand;
+        if (IsServer)
+        {
+            CompareHands();
+
+        }
     }
-    public void getHand2(Hand hand)
+
+    private void CompareHands()
     {
-        SecondPlayer = hand;
+        if (FirstPlayer.Value == SecondPlayer.Value) Debug.Log("Gleichstand");
+        else if(FirstPlayer.Value == Hand.Rock)
+        {
+            if (SecondPlayer.Value == Hand.Paper) 
+                Debug.Log("SecondPlayer " + SecondPlayer.Value + " wins against " + FirstPlayer.Value);
+            else Debug.Log("FirstPlayer " + FirstPlayer.Value + " wins against " + SecondPlayer.Value);
+        }
+        else if (FirstPlayer.Value == Hand.Paper)
+        {
+            if (SecondPlayer.Value == Hand.Scissors) 
+                Debug.Log("SecondPlayer " + SecondPlayer.Value + " wins against " + FirstPlayer.Value);
+            else Debug.Log("FirstPlayer " + FirstPlayer.Value + " wins against " + SecondPlayer.Value);
+        }
+        else if (FirstPlayer.Value == Hand.Scissors)
+        {
+            if (SecondPlayer.Value == Hand.Rock)
+                Debug.Log("SecondPlayer " + SecondPlayer.Value + " wins against " + FirstPlayer.Value);
+            else Debug.Log("FirstPlayer " + FirstPlayer.Value + " wins against " + SecondPlayer.Value);
+        }
+    }
+
+    public void getHand(Hand hand)
+    {
+        FirstPlayer = new NetworkVariable<Hand>(hand);
+        Debug.Log("FirstPlayer has been sent to the Solver.");
+    }
+    
+    [ServerRpc(RequireOwnership = false)]
+    public void getHandServerRpc(Hand hand)
+    {
+        SecondPlayer = new NetworkVariable<Hand>(hand);
+        Debug.Log("SecondPlayer has been sent to the Solver.");
     }
 }
