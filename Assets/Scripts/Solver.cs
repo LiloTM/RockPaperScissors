@@ -99,12 +99,12 @@ public class Solver : NetworkBehaviour
     private void ClientWins()
     {
         NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(ClientID).GetComponent<GameManager>().increaseWinCountClientRpc();
-        infoText = "Client " + ClientPlayer.Value + " wins against " + HostPlayer.Value;
+        infoText = "Der Client " + ClientPlayer.Value + " gewinnt gegen " + HostPlayer.Value;
     }
     private void HostWins()
     {
         NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(HostID).GetComponent<GameManager>().increaseWinCountClientRpc();
-        infoText = "Host " + HostPlayer.Value + " wins against " + ClientPlayer.Value;
+        infoText = "Der Host " + HostPlayer.Value + " gewinnt gegen " + ClientPlayer.Value;
     }
 
     private void setUI()
