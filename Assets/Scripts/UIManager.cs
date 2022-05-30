@@ -8,7 +8,9 @@ public enum Hand
     Empty,
     Rock,
     Paper,
-    Scissors
+    Scissors,
+    Lizard,
+    Spock
 }
 
 public class UIManager : MonoBehaviour
@@ -20,17 +22,30 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private Button ScissorsButton;
     [SerializeField]
+    private Button LizardButton;
+    [SerializeField]
+    private Button SpockButton;
+
+    [SerializeField]
     private Button Play;
+
+    private TMPro.TMP_Text winLose;
+    private IEnumerator coroutine;
 
     [SerializeField]
     private Hand playHand = Hand.Empty;
     
     private void Start()
     {
+        winLose = (TMPro.TMP_Text)GameObject.Find("Win/Lose").GetComponent(typeof(TMPro.TMP_Text));
+        winLose.text = "";
+
         RockButton.onClick.AddListener(() => playHand = Hand.Rock);
         PaperButton.onClick.AddListener(() => playHand = Hand.Paper);
         ScissorsButton.onClick.AddListener(() => playHand = Hand.Scissors);
-        
+        LizardButton.onClick.AddListener(() => playHand = Hand.Lizard);
+        SpockButton.onClick.AddListener(() => playHand = Hand.Spock);
+
         Play.onClick.AddListener(() => {
             if (playHand != Hand.Empty) 
             {
@@ -41,5 +56,28 @@ public class UIManager : MonoBehaviour
                 playHand = Hand.Empty;
             }
         });
+    }
+
+    public void setRoundStats(string infoText)
+    {
+        coroutine = WaitAndPrint(3.5f);
+        winLose.text = infoText;
+        StartCoroutine(coroutine);
+    }
+
+    private IEnumerator WaitAndPrint(float waitTime)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(waitTime);
+            winLose.text = "";
+            StopCoroutine(coroutine);
+        }
+    }
+
+    public void setWinLose(bool win)
+    {
+        if (win) winLose.text = "You Win";
+        else winLose.text = "You Lose";
     }
 }

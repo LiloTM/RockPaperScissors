@@ -7,23 +7,39 @@ public class GameManager : NetworkBehaviour
 {
     [SerializeField]
     private int winCount = 0;
+    private UIManager uiManager;
+
+    private void Start()
+    {
+        uiManager = (UIManager)FindObjectOfType(typeof(UIManager));
+    }
+
+    [ClientRpc]
+    public void setUIClientRpc(string infoText)
+    {
+        uiManager.setRoundStats(infoText);
+    }
 
     [ClientRpc]
     public void increaseWinCountClientRpc()
     {
         Debug.Log("Win++");
         winCount++;
-        if (winCount >= 3) ClientWinServerRpc();
+        if (winCount >= 3) ClientWinServerRpc(NetworkManager.Singleton.LocalClientId);
     }
 
-    //TODO: DAS FUNKTIONIERT NOCH NICHT
     [ServerRpc(RequireOwnership = false)]
-    private void ClientWinServerRpc()
+    private void ClientWinServerRpc(ulong winnerID)
     {
-        if(IsOwner)
-            Debug.Log("You won");
-        else
-            Debug.Log("You lost");
-        //TODO: Win and Lose of Players
+        WinClientRpc(winnerID);
+    }
+
+    [ClientRpc]
+    private void WinClientRpc(ulong ID)
+    {
+        if(ID == NetworkManager.Singleton.LocalClientId)
+            uiManager.setWinLose(true);
+        else uiManager.setWinLose(false);
     }
 }
+
