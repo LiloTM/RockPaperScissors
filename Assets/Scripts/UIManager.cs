@@ -30,6 +30,7 @@ public class UIManager : MonoBehaviour
     private Button Play;
 
     private TMPro.TMP_Text winLose;
+    private TMPro.TMP_Text winCountText;
     private IEnumerator coroutine;
 
     [SerializeField]
@@ -39,6 +40,8 @@ public class UIManager : MonoBehaviour
     {
         winLose = (TMPro.TMP_Text)GameObject.Find("Win/Lose").GetComponent(typeof(TMPro.TMP_Text));
         winLose.text = "";
+        winCountText = (TMPro.TMP_Text)GameObject.Find("WinCountText").GetComponent(typeof(TMPro.TMP_Text));
+        winCountText.text = "";
 
         RockButton.onClick.AddListener(() => playHand = Hand.Rock);
         PaperButton.onClick.AddListener(() => playHand = Hand.Paper);
@@ -63,6 +66,11 @@ public class UIManager : MonoBehaviour
         coroutine = WaitAndPrint(3.5f);
         winLose.text = infoText;
         StartCoroutine(coroutine);
+    }
+
+    public void setWinCount(int wins)
+    {
+        winCountText.text = "Wins: " + wins;
     }
 
     private IEnumerator WaitAndPrint(float waitTime)

@@ -25,6 +25,7 @@ public class GameManager : NetworkBehaviour
     {
         Debug.Log("Win++");
         winCount++;
+        if (IsOwner) uiManager.setWinCount(winCount);
         if (winCount >= 3) ClientWinServerRpc(NetworkManager.Singleton.LocalClientId);
     }
 
